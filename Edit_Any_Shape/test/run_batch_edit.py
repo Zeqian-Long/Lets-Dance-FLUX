@@ -19,7 +19,6 @@ default_args = {
 
 
 
-
 for idx, (key, item) in enumerate(mapping.items()):
     if item.get("editing_type_id") != "1":
         continue
@@ -34,17 +33,19 @@ for idx, (key, item) in enumerate(mapping.items()):
     output_dir = os.path.abspath(os.path.join("..", "src", "examples", "edit-result", task_name, img_name))
     os.makedirs(output_dir, exist_ok=True)
 
-    editmap_vis_dir = os.path.abspath(os.path.join("..", "examples", "edit-map-visualization", task_name, img_name))
+    editmap_vis_dir = os.path.abspath(os.path.join("..", "src", "examples", "edit-map-visualization", task_name, img_name))
     delta_dir = os.path.join(editmap_vis_dir, "delta")
     os.makedirs(delta_dir, exist_ok=True)
 
-    # === 构造完整命令 ===
+
     command = [
         "python", edit_py_path,
         "--source_prompt", f"{source_prompt}",
         "--target_prompt", f"{target_prompt}",
         "--source_img_dir", f"{source_img}",
         "--output_dir", f"{output_dir}",
+        "--vis_path", f"{editmap_vis_dir}",
+
     ]
 
     for k, v in default_args.items():
@@ -53,5 +54,5 @@ for idx, (key, item) in enumerate(mapping.items()):
             command.append(v)
 
     print(f"\n=== Running [{idx}/{len(mapping)}]: {task_name} ===")
-    print(" ".join(command))
+    print("\n".join(command))
     subprocess.run(command)

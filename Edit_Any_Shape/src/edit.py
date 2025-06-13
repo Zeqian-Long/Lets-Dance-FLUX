@@ -147,7 +147,7 @@ def main(
             controlnet = FluxControlNetModel.from_pretrained("InstantX/FLUX.1-dev-Controlnet-Canny", torch_dtype=torch.bfloat16).to(torch_device)
 
         control_pil = control_pil.crop((0, 0, new_w, new_h))
-        control_pil.save("control_map_preview.png")
+        # control_pil.save("control_map_preview.png")
         control_tensor = (torch.from_numpy(np.array(control_pil)).permute(2, 0, 1).float().unsqueeze(0) / 255.0).to(torch_device).to(torch.bfloat16)
         control_tensor = control_tensor * 2 - 1
         control_latent = ae.encode(control_tensor.float())
@@ -236,7 +236,9 @@ def main(
         info['feature_path'] = args.feature_path
         info['feature'] = {}
         info['inject_step'] = args.inject
-        info['vis_path'] = editmap_vis_dir
+
+        if args.vis_path is not None:
+            info["vis_path"] = args.vis_path
 
         if args.mask_path is not None:
             info['mask'] = mask_indices
@@ -363,11 +365,11 @@ if __name__ == "__main__":
                         help='describe the requirement of editing')
     parser.add_argument('--feature_path', type=str, default='feature',
                         help='the path to save the feature ')
-    parser.add_argument('--guidance', type=float, default=5,
+    parser.add_argument('--guidance', type=float, default=3,
                         help='guidance scale')
-    parser.add_argument('--num_steps', type=int, default=25,
+    parser.add_argument('--num_steps', type=int, default=15,
                         help='the number of timesteps for inversion and denoising')
-    parser.add_argument('--inject', type=int, default=20,
+    parser.add_argument('--inject', type=int, default=4,
                         help='the number of timesteps which apply the feature sharing')
     parser.add_argument('--output_dir', default='output', type=str,
                         help='the path of the edited image')
@@ -377,6 +379,8 @@ if __name__ == "__main__":
                         help="ControlNet type: 'none' for no control, 'single' for depth or canny, 'multi' for both")
     parser.add_argument('--controlnet_kind', type=str, default='depth', choices=['depth', 'canny'],
                         help="When using 'single' ControlNet, choose 'depth' or 'canny'")
+    parser.add_argument('--vis_path', default=None, type=str,
+                        help='path to save edit map visualization')
 
 
     args = parser.parse_args()
